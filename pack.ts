@@ -79,15 +79,6 @@ const packageApp = async () => {
 
     // Run build-release in this folder, for each platform. For each bundle, we copy in
     // only the relevant platform-specific NSS files.
-    console.log('Building for Linux');
-    await fs.mkdir(path.join(OUTPUT_DIR, 'nss'));
-    await fs.copy(path.join(__dirname, 'nss', 'linux'), path.join(OUTPUT_DIR, 'nss', 'linux'));
-    await spawn(buildScript, ['linux'], { cwd: OUTPUT_DIR, stdio: 'inherit' });
-
-    console.log('Building for Darwin');
-    await fs.remove(path.join(OUTPUT_DIR, 'nss', 'linux'));
-    await fs.copy(path.join(__dirname, 'nss', 'darwin'), path.join(OUTPUT_DIR, 'nss', 'darwin'));
-    await spawn(buildScript, ['darwin'], { cwd: OUTPUT_DIR, stdio: 'inherit' });
 
     console.log('Building for Win32');
     await fs.remove(path.join(OUTPUT_DIR, 'nss', 'darwin'));
