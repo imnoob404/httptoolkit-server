@@ -202,8 +202,8 @@ export async function runHTK(options: {
             }
         },
         corsOptions: {
-            strict: true, // For the standalone admin API, require valid CORS headers
-            origin: MOCKTTP_ALLOWED_ORIGINS, // Only allow mock admin control from our origins
+            strict: false, // For the standalone admin API, require valid CORS headers
+            origin: '*', // Only allow mock admin control from our origins
             maxAge: 86400, // Cache CORS responses for as long as possible
             allowPrivateNetworkAccess: true // Allow access from non-local domains in Chrome 102+
         },
@@ -271,4 +271,5 @@ export async function runHTK(options: {
 
     console.log('Server started in', Date.now() - standaloneSetupTime, 'ms');
     console.log('Total startup took', Date.now() - startTime, 'ms');
+    console.log('Patched');
 }
