@@ -63,14 +63,14 @@ export class HttpToolkitServerApi extends events.EventEmitter {
         });
 
         this.server.use(cors({
-            origin: ALLOWED_ORIGINS,
+            origin: '*',
             maxAge: 86400 // Cache this result for as long as possible
         }));
 
         this.server.use(corsGate({
-            strict: true, // MUST send an allowed origin
-            allowSafe: false, // Even for HEAD/GET requests
-            origin: '', // No origin - we accept *no* same-origin requests
+            strict: false, // MUST send an allowed origin
+            allowSafe: true, // Even for HEAD/GET requests
+            origin: '*', // No origin - we accept *no* same-origin requests
 
             // Extend default failure response to add a helpful error body.
             failure: (_req, res, _next) => {
