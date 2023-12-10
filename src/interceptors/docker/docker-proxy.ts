@@ -6,7 +6,6 @@ import * as net from 'net';
 import * as http from 'http';
 import Dockerode from 'dockerode';
 import getRawBody from 'raw-body';
-import { AbortController } from 'node-abort-controller';
 import { makeDestroyable, DestroyableServer } from 'destroyable-server';
 
 import { chmod, deleteFile, readDir } from '../../util/fs';
@@ -15,6 +14,7 @@ import { streamToBuffer } from '../../util/stream';
 import { logError } from '../../error-tracking';
 import { addShutdownHandler } from '../../shutdown';
 
+import { getDockerAddress } from './docker-utils';
 import {
     isInterceptedContainer,
     transformContainerCreationConfig
@@ -77,12 +77,7 @@ async function createDockerProxy(
 ) {
     const docker = new Dockerode();
 
-    // Hacky logic to reuse docker-modem's internal env + OS parsing logic to
-    // work out where the local Docker host is:
-    const modem = docker.modem as any as ({ socketPath: string } | { host: string, port: number });
-    const dockerHostOptions = 'socketPath' in modem
-        ? { socketPath: modem.socketPath }
-        : { host: modem.host, port: modem.port };
+    const dockerHostOptions = await getDockerAddress(docker);
 
     const agent = new http.Agent({ keepAlive: true });
 
