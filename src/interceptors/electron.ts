@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { spawn } from 'child_process';
 import * as path from 'path';
 
+import { delay, ErrorLike, isErrorLike } from '@httptoolkit/util';
 import { getPortPromise as getPort } from 'portfinder';
 import { generateSPKIFingerprint } from 'mockttp';
 import ChromeRemoteInterface = require('chrome-remote-interface');
@@ -9,11 +10,9 @@ import ChromeRemoteInterface = require('chrome-remote-interface');
 import { Interceptor } from '.';
 
 import { HtkConfig } from '../config';
-import { delay } from '../util/promise';
-import { ErrorLike, isErrorLike } from '../util/error';
 import { canAccess, readFile } from '../util/fs';
 import { windowsClose } from '../util/process-management';
-import { getTerminalEnvVars, OVERRIDES_DIR } from './terminal/terminal-env-overrides';
+import { getInheritableCurrentEnv, getTerminalEnvVars, OVERRIDES_DIR } from './terminal/terminal-env-overrides';
 import { logError, addBreadcrumb } from '../error-tracking';
 import { findExecutableInApp } from '@httptoolkit/osx-find-executable';
 
@@ -65,11 +64,13 @@ export class ElectronInterceptor implements Interceptor {
             // Non-darwin, or darwin with a full path to the binary:
                 : pathToApplication;
 
+        const currentEnv = getInheritableCurrentEnv();
+
         const appProcess = spawn(cmd, [`--inspect-brk=127.0.0.1:${debugPort}`], {
             stdio: 'inherit',
             env: {
-                ...process.env,
-                ...getTerminalEnvVars(proxyPort, this.config.https, process.env),
+                ...currentEnv,
+                ...getTerminalEnvVars(proxyPort, this.config.https, currentEnv),
                 // We have to disable NODE_OPTIONS injection. If set, the Electron
                 // app never fires paused(). I suspect because --require changes the
                 // startup process somehow. Regardless, we don't need it (we're injecting
